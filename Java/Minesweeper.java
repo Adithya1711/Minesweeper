@@ -5,12 +5,21 @@ import javax.swing.*;
 
 public class Minesweeper extends JFrame {
     private final int SIZE = 10; 
-    private final int MINES = 15;
+    private final int MINES = 10;
     private JButton[][] buttons = new JButton[SIZE][SIZE];
     private boolean[][] mines = new boolean[SIZE][SIZE];
     private boolean[][] revealed = new boolean[SIZE][SIZE];
     private boolean[][] flagged = new boolean[SIZE][SIZE];
     private boolean gameOver = false;
+    private ImageIcon bombIcon = new ImageIcon("D:/Minesweeper/Public/Assets/mine1.png");
+
+    private ImageIcon scaleImageIcon(ImageIcon icon, int width, int height) {
+        Image img = icon.getImage();
+        Image resizedImg = img.getScaledInstance(width-20, height-20, Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImg);
+    }
+    
+
 
     public Minesweeper() {
         setTitle("Minesweeper");
@@ -80,6 +89,40 @@ public class Minesweeper extends JFrame {
         }
     }
 
+    private boolean isGameWon() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                // Check if non-mine cell is not revealed
+                if (!mines[i][j] && !revealed[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    private void checkGameWin() {
+        if (!gameOver && isGameWon()) {
+            gameOver = true;
+            JOptionPane.showMessageDialog(this, "Congratulations! You won the game!");
+            revealAllMines(); // Optional: Show mines in different color
+        }
+    }
+    
+    // Optional helper to mark mines when game is won
+    private void revealAllMines() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (mines[i][j] && !flagged[i][j]) {
+                    buttons[i][j].setBackground(Color.GREEN);
+                    buttons[i][j].setIcon(scaleImageIcon(bombIcon, 
+                        buttons[i][j].getWidth(), 
+                        buttons[i][j].getHeight()));
+                }
+            }
+        }
+    }
+
     private void revealCell(int row, int col) {
         if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || revealed[row][col] || flagged[row][col]) return;
 
@@ -88,7 +131,7 @@ public class Minesweeper extends JFrame {
         buttons[row][col].setBackground(new Color(200, 200, 200));
 
         if (mines[row][col]) {
-            buttons[row][col].setText("💣");
+            buttons[row][col].setIcon(scaleImageIcon(bombIcon, buttons[row][col].getWidth(), buttons[row][col].getHeight()));
             gameOver();
             return;
         }
@@ -104,6 +147,7 @@ public class Minesweeper extends JFrame {
                 }
             }
         }
+        checkGameWin();
     }
 
     private String getHexColor(int count) {
@@ -133,7 +177,8 @@ public class Minesweeper extends JFrame {
     private void toggleFlag(int row, int col) {
         if (revealed[row][col]) return;
         flagged[row][col] = !flagged[row][col];
-        buttons[row][col].setText(flagged[row][col] ? "<html><font color='#FF0000'>⚑</font></html>" : "");
+        buttons[row][col].setText(flagged[row][col] ? "M" : "");
+        checkGameWin();
     }
 
     private void gameOver() {
@@ -142,7 +187,7 @@ public class Minesweeper extends JFrame {
             for (int j = 0; j < SIZE; j++) {
                 if (mines[i][j]) {
                     buttons[i][j].setBackground(Color.RED);
-                    buttons[i][j].setText("💣");
+                    buttons[i][j].setIcon(scaleImageIcon(bombIcon, buttons[i][j].getWidth(), buttons[i][j].getHeight()));
                 }
             }
         }
