@@ -89,27 +89,6 @@ public class Minesweeper extends JFrame {
         }
     }
 
-    private boolean isGameWon() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                // Check if non-mine cell is not revealed
-                if (!mines[i][j] && !revealed[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    
-    private void checkGameWin() {
-        if (!gameOver && isGameWon()) {
-            gameOver = true;
-            JOptionPane.showMessageDialog(this, "Congratulations! You won the game!");
-            revealAllMines(); // Optional: Show mines in different color
-        }
-    }
-    
-    // Optional helper to mark mines when game is won
     private void revealAllMines() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -181,6 +160,49 @@ public class Minesweeper extends JFrame {
         checkGameWin();
     }
 
+    
+    private boolean isGameWon() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                // Check if non-mine cell is not revealed
+                if (!mines[i][j] && !revealed[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    private void checkGameWin() {
+        if (!gameOver && isGameWon()) {
+            gameOver = true;
+            revealAllMines(); // Optional: Show mines in different color
+        int choice = JOptionPane.showConfirmDialog(this, "Game Over! You won!. Play again?", "Game Over",
+            JOptionPane.YES_NO_OPTION);
+
+    if (choice == JOptionPane.YES_OPTION) {
+        resetGame();
+    } else {
+        System.exit(0);
+    }
+        }
+    }
+    
+
+    private void resetGame() {
+        gameOver = false;
+        mines = new boolean[SIZE][SIZE];
+        revealed = new boolean[SIZE][SIZE];
+        flagged = new boolean[SIZE][SIZE];
+    
+        getContentPane().removeAll();
+        setLayout(new GridLayout(SIZE, SIZE));
+        initializeGame();
+        revalidate();
+        repaint();
+    }
+    
+
     private void gameOver() {
         gameOver = true;
         for (int i = 0; i < SIZE; i++) {
@@ -191,8 +213,17 @@ public class Minesweeper extends JFrame {
                 }
             }
         }
-        JOptionPane.showMessageDialog(this, "Game Over! You hit a mine.");
+        
+        int choice = JOptionPane.showConfirmDialog(this, "Game Over! You hit a mine. Play again?", "Game Over",
+                JOptionPane.YES_NO_OPTION);
+    
+        if (choice == JOptionPane.YES_OPTION) {
+            resetGame();
+        } else {
+            System.exit(0);
+        }
     }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
